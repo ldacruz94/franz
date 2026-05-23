@@ -25,13 +25,12 @@ function applyTheme(name: string) {
 const THINKING_PROMPTS = [
   "Of course, sir. One moment.",
   "Right away, sir.",
-  "Leave it with me, sir.",
+  "Leave it to me, sir.",
   "On it, sir.",
   "Certainly, sir. Give me just a moment.",
   "At once, sir.",
   "Consider it done, sir.",
   "I'll look into that for you, sir.",
-  "Allow me a moment, sir.",
   "Very good, sir.",
 ];
 

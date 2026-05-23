@@ -4,7 +4,9 @@ from fastapi.responses import Response
 from faster_whisper import WhisperModel
 from kokoro import KPipeline
 from pydantic import BaseModel
+
 from agent import chat as agent_chat, pop_theme
+
 import numpy as np
 import soundfile as sf
 import tempfile
@@ -47,7 +49,9 @@ async def transcribe(audio: UploadFile = File(...)):
         tmp_path = tmp.name
 
     try:
-        segments, _ = whisper.transcribe(tmp_path)
+        segments, _ = whisper.transcribe(tmp_path, 
+                                         task="transcribe", 
+                                         language="en")
         transcript = " ".join(seg.text.strip() for seg in segments)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
