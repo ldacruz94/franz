@@ -1,3 +1,11 @@
+:root {
+  --franz-primary:  #00c8ff;
+  --franz-bright:   #00e5ff;
+  --franz-dim:      #005577;
+  --franz-deep-dim: #003d55;
+  --franz-bg:       #041520;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

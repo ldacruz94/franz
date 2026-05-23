@@ -4,7 +4,7 @@ from fastapi.responses import Response
 from faster_whisper import WhisperModel
 from kokoro import KPipeline
 from pydantic import BaseModel
-import ollama
+from agent import chat as agent_chat, pop_theme
 import numpy as np
 import soundfile as sf
 import tempfile
@@ -22,14 +22,6 @@ app.add_middleware(
 
 whisper = WhisperModel("base", device="cpu", compute_type="int8")
 tts = KPipeline(lang_code="b")  # British English
-
-LLM_MODEL = "llama3.2:3b"
-SYSTEM_PROMPT = (
-    "You are Franz, a sharp and concise personal AI assistant. "
-    "Always address the user as 'sir'. "
-    "Respond in 1-3 sentences unless the user asks for more detail."
-)
-conversation: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
 
 
 class SpeakRequest(BaseModel):
@@ -67,16 +59,19 @@ async def transcribe(audio: UploadFile = File(...)):
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    conversation.append({"role": "user", "content": req.message})
     try:
-        response = ollama.chat(model=LLM_MODEL, messages=conversation)
-        reply = response.message.content
+        reply = agent_chat(req.message)
+        theme = pop_theme()
     except Exception as e:
-        conversation.pop()
         print(f"[chat error] {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    conversation.append({"role": "assistant", "content": reply})
-    return {"reply": reply}
+    
+    result: dict = {"reply": reply}
+
+    if theme:
+        result["theme"] = theme
+
+    return result
 
 
 @app.post("/speak")
@@ -86,6 +81,8 @@ def speak(req: SpeakRequest):
         audio = np.concatenate(chunks)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
     buf = io.BytesIO()
     sf.write(buf, audio, 24000, format="WAV")
+
     return Response(content=buf.getvalue(), media_type="audio/wav")

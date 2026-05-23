@@ -22,11 +22,12 @@ const outerDots = Array.from({ length: 36 }, (_, i) => {
 
 interface Props {
   isSpeaking?: boolean;
+  isThinking?: boolean;
 }
 
-export default function TickCircle({ isSpeaking = false }: Props) {
+export default function TickCircle({ isSpeaking = false, isThinking = false }: Props) {
   return (
-    <div className="tick-circle-wrapper">
+    <div className={`tick-circle-wrapper${isThinking ? " tick-circle-wrapper--thinking" : ""}`}>
       {isSpeaking && (
         <>
           <div className="speak-ring speak-ring--1" />
@@ -57,9 +58,9 @@ export default function TickCircle({ isSpeaking = false }: Props) {
             </feMerge>
           </filter>
           <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="#00c8ff" stopOpacity="0.18" />
-            <stop offset="65%"  stopColor="#00c8ff" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="#00c8ff" stopOpacity="0" />
+            <stop offset="0%"   style={{ stopColor: "var(--franz-primary)", stopOpacity: 0.18 }} />
+            <stop offset="65%"  style={{ stopColor: "var(--franz-primary)", stopOpacity: 0.05 }} />
+            <stop offset="100%" style={{ stopColor: "var(--franz-primary)", stopOpacity: 0 }} />
           </radialGradient>
         </defs>
 
@@ -67,13 +68,13 @@ export default function TickCircle({ isSpeaking = false }: Props) {
 
           {/* ── Center glow ── */}
           <circle r={110} fill="url(#centerGlow)" />
-          <circle r={104} fill="none" stroke="#00c8ff" strokeWidth={0.8} opacity={0.45} filter="url(#glow-sm)" />
+          <circle r={104} fill="none" style={{ stroke: "var(--franz-primary)" }} strokeWidth={0.8} opacity={0.45} filter="url(#glow-sm)" />
 
           {/* ── Speaking glow ── */}
           {isSpeaking && (
             <>
-              <circle r={110} fill="#00c8ff" className="center-speaking-fill" filter="url(#glow)" />
-              <circle r={104} fill="none" stroke="#00e5ff" strokeWidth={3} className="center-speaking-ring" filter="url(#glow)" />
+              <circle r={110} style={{ fill: "var(--franz-primary)" }} className="center-speaking-fill" filter="url(#glow)" />
+              <circle r={104} fill="none" style={{ stroke: "var(--franz-bright)" }} strokeWidth={3} className="center-speaking-ring" filter="url(#glow)" />
             </>
           )}
 
@@ -82,7 +83,7 @@ export default function TickCircle({ isSpeaking = false }: Props) {
             <circle
               key={i} cx={x} cy={y}
               r={major ? 2.5 : 1.5}
-              fill={major ? "#00e5ff" : "#005577"}
+              style={{ fill: major ? "var(--franz-bright)" : "var(--franz-dim)" }}
               opacity={major ? 0.9 : 0.55}
             />
           ))}
@@ -90,14 +91,14 @@ export default function TickCircle({ isSpeaking = false }: Props) {
           {/* ── Inner segmented arc ring ── */}
           <circle
             r={152} fill="none"
-            stroke="#00c8ff" strokeWidth={1.5}
+            style={{ stroke: "var(--franz-primary)" }} strokeWidth={1.5}
             strokeDasharray="67 29"
             opacity={0.7}
             filter="url(#glow-sm)"
           />
 
           {/* ── Rotating tick ring ── */}
-          <g className="ticks-group">
+          <g className={`ticks-group${isThinking ? " ticks-group--thinking" : ""}`}>
             {ticks.map(({ angle, isMajor }) => {
               const w = isMajor ? 6 : 2;
               const h = isMajor ? 16 : 11;
@@ -106,7 +107,7 @@ export default function TickCircle({ isSpeaking = false }: Props) {
                   key={angle}
                   x={-w / 2} y={-TICK_RADIUS}
                   width={w} height={h} rx={1}
-                  fill={isMajor ? "#00e5ff" : "#0090bb"}
+                  style={{ fill: isMajor ? "var(--franz-bright)" : "var(--franz-dim)" }}
                   transform={`rotate(${angle})`}
                   filter={isMajor ? "url(#glow-sm)" : undefined}
                 />
@@ -118,7 +119,7 @@ export default function TickCircle({ isSpeaking = false }: Props) {
           <g className="outer-arcs-group">
             <circle
               r={220} fill="none"
-              stroke="#00c8ff" strokeWidth={2}
+              style={{ stroke: "var(--franz-primary)" }} strokeWidth={2}
               strokeDasharray="130 43"
               opacity={0.75}
               filter="url(#glow-sm)"
@@ -130,25 +131,24 @@ export default function TickCircle({ isSpeaking = false }: Props) {
             <circle
               key={i} cx={x} cy={y}
               r={major ? 3 : 1.5}
-              fill={major ? "#00c8ff" : "#003d55"}
+              style={{ fill: major ? "var(--franz-primary)" : "var(--franz-deep-dim)" }}
               opacity={major ? 0.85 : 0.45}
               filter={major ? "url(#glow-sm)" : undefined}
             />
           ))}
 
           {/* ── Hairline outer ring ── */}
-          <circle r={268} fill="none" stroke="#00c8ff" strokeWidth={0.5} opacity={0.25} />
+          <circle r={268} fill="none" style={{ stroke: "var(--franz-primary)" }} strokeWidth={0.5} opacity={0.25} />
 
           {/* ── Center label ── */}
           <text
             y={9}
             textAnchor="middle"
-            fill="#00e5ff"
+            style={{ fill: "var(--franz-bright)", userSelect: "none" }}
             fontSize={24}
             fontFamily="sans-serif"
             letterSpacing={7}
             filter="url(#glow)"
-            style={{ userSelect: "none" }}
           >
             FRANZ
           </text>

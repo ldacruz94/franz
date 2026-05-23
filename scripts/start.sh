@@ -70,13 +70,14 @@ uvicorn main:app --host 127.0.0.1 --port 8000 &>/tmp/franz-backend.log &
 PIDS+=($!)
 cd "$ROOT"
 
-# Wait for backend to be ready
-for i in {1..15}; do
+# Wait for backend to be ready (model loading can take ~30-60s on first run)
+log "Waiting for backend (loading models)..."
+for i in {1..60}; do
   if curl -sf http://localhost:8000/health &>/dev/null; then
     break
   fi
   sleep 1
-  if [[ $i -eq 15 ]]; then
+  if [[ $i -eq 60 ]]; then
     err "Backend failed to start. Check: tail /tmp/franz-backend.log"
     exit 1
   fi
