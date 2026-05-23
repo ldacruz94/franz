@@ -19,6 +19,42 @@ export default function VoiceButton({ onTranscript }: Props) {
   const [errorMsg, setErrorMsg] = useState("");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const animFrameRef = useRef<number>(0);
+
+  function startVolumeAnimation(stream: MediaStream) {
+    const ctx = new AudioContext();
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    ctx.createMediaStreamSource(stream).connect(analyser);
+    audioCtxRef.current = ctx;
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    function frame() {
+      analyser.getByteFrequencyData(data);
+      const avg = data.reduce((a, b) => a + b, 0) / data.length;
+      const glow = Math.round(avg * 0.6);
+      const ring = Math.round(avg * 0.15);
+      if (btnRef.current) {
+        btnRef.current.style.boxShadow =
+          `0 0 ${glow}px rgba(143, 211, 255, 0.5), 0 0 0 ${ring}px rgba(143, 211, 255, 0.15)`;
+        btnRef.current.style.transform = `scale(${1 + avg / 255 * 0.18})`;
+      }
+      animFrameRef.current = requestAnimationFrame(frame);
+    }
+    animFrameRef.current = requestAnimationFrame(frame);
+  }
+
+  function stopVolumeAnimation() {
+    cancelAnimationFrame(animFrameRef.current);
+    audioCtxRef.current?.close();
+    audioCtxRef.current = null;
+    if (btnRef.current) {
+      btnRef.current.style.boxShadow = "";
+      btnRef.current.style.transform = "";
+    }
+  }
 
   async function toggle() {
     if (status === "listening") {
@@ -38,6 +74,8 @@ export default function VoiceButton({ onTranscript }: Props) {
       return;
     }
 
+    startVolumeAnimation(stream);
+
     const recorder = new MediaRecorder(stream);
     recorderRef.current = recorder;
     chunksRef.current = [];
@@ -47,6 +85,7 @@ export default function VoiceButton({ onTranscript }: Props) {
     };
 
     recorder.onstop = async () => {
+      stopVolumeAnimation();
       stream.getTracks().forEach((t) => t.stop());
       setStatus("processing");
 
@@ -88,6 +127,7 @@ export default function VoiceButton({ onTranscript }: Props) {
       {transcript && <p className="voice-transcript">{transcript}</p>}
       {errorMsg && <p className="voice-error">{errorMsg}</p>}
       <button
+        ref={btnRef}
         className={`voice-btn voice-btn--${status}`}
         onClick={toggle}
         disabled={status === "processing"}
