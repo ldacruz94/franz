@@ -1,20 +1,27 @@
 .tick-circle-wrapper {
   position: relative;
-  width: 520px;
-  height: 520px;
+  width: 600px;
+  height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.tick-circle-svg {
+.jarvis-svg {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-.tick-ring {
+.ticks-group {
   animation: spin 11.52s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.outer-arcs-group {
+  animation: spin 28s linear infinite reverse;
+  transform-box: fill-box;
   transform-origin: center;
 }
 
@@ -23,22 +30,32 @@
   to   { transform: rotate(360deg); }
 }
 
-.tick-label {
-  position: relative;
-  z-index: 1;
-  color: #8fd3ff;
-  font-size: 28px;
-  font-family: sans-serif;
-  letter-spacing: 0.05em;
-  user-select: none;
+/* ── Speaking center glow ── */
+.center-speaking-fill {
+  animation: center-fill-pulse 1.4s ease-in-out infinite;
 }
 
+.center-speaking-ring {
+  animation: center-ring-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes center-fill-pulse {
+  0%, 100% { opacity: 0.04; }
+  50%       { opacity: 0.13; }
+}
+
+@keyframes center-ring-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 0.9; }
+}
+
+/* ── Speaking ripple rings ── */
 .speak-ring {
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 1.5px solid #8fd3ff;
+  border: 1.5px solid #00c8ff;
   opacity: 0;
   animation: ring-out 2s ease-out infinite;
   pointer-events: none;
@@ -48,6 +65,6 @@
 .speak-ring--3 { animation-delay: 1.3s; }
 
 @keyframes ring-out {
-  0%   { transform: scale(1);    opacity: 0.55; }
-  100% { transform: scale(1.55); opacity: 0; }
+  0%   { transform: scale(1);    opacity: 0.5; }
+  100% { transform: scale(1.5);  opacity: 0; }
 }
