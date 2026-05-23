@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langchain_ollama import ChatOllama
 from langgraph.prebuilt import create_react_agent
@@ -82,16 +82,8 @@ _llm = ChatOllama(model=MODEL)
 _tools = [get_current_time, web_search, change_theme]
 _agent = create_react_agent(_llm, _tools, prompt=SYSTEM_PROMPT)
 
-_history: list = []
-MAX_HISTORY_TURNS = 3  # small models lose track beyond a few exchanges
-
-
 def chat(message: str) -> str:
-    _history.append(HumanMessage(content=message))
-    recent = _history[-(MAX_HISTORY_TURNS * 2):]
-    result = _agent.invoke({"messages": recent})
+    result = _agent.invoke({"messages": [HumanMessage(content=message)]})
     reply = result["messages"][-1].content
-    _history.append(AIMessage(content=reply))
     _color_fallback(message)
-
     return reply
