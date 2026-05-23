@@ -29,13 +29,52 @@ def get_current_time() -> str:
 
 @tool
 def web_search(query: str) -> str:
-    """Search the web for current information, news, facts, or anything requiring up-to-date knowledge."""
+    """Search the web for current information. Use this for latest, recent, news, versions, prices, or uncertain facts."""
     from ddgs import DDGS
-    results = DDGS().text(query, max_results=4)
-    if not results:
-        return "No results found."
-    return "\n\n".join(f"{r['title']}\n{r['body']}" for r in results)
 
+    search_queries = [
+        query,
+        f"{query} latest 2026",
+        f"{query} official documentation"
+    ]
+
+    seen_urls = set()
+    formatted_results = []
+
+    with DDGS() as ddgs:
+        for search_query in search_queries:
+            results = ddgs.text(search_query, max_results=3)
+
+            for r in results:
+                title = r.get("title", "").strip()
+                body = r.get("body", "").strip()
+                url = r.get("href", "").strip()
+
+                if not title or not url or url in seen_urls:
+                    continue
+
+                seen_urls.add(url)
+
+                formatted_results.append(
+                    f"Title: {title}\n"
+                    f"URL: {url}\n"
+                    f"Snippet: {body}"
+                )
+
+                if len(formatted_results) >= 5:
+                    break
+
+            if len(formatted_results) >= 5:
+                break
+
+    if not formatted_results:
+        return "No reliable search results found."
+
+    return (
+        "Use ONLY these search results to answer. "
+        "If the results are weak or incomplete, say so.\n\n"
+        + "\n\n---\n\n".join(formatted_results)
+    )
 
 @tool
 def change_theme(color: str) -> str:
