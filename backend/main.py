@@ -26,6 +26,7 @@ tts = KPipeline(lang_code="b")  # British English
 LLM_MODEL = "llama3.2:3b"
 SYSTEM_PROMPT = (
     "You are Franz, a sharp and concise personal AI assistant. "
+    "Always address the user as 'sir'. "
     "Respond in 1-3 sentences unless the user asks for more detail."
 )
 conversation: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]

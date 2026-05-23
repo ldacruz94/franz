@@ -15,9 +15,20 @@ const ticks: Tick[] = Array.from({ length: TICK_COUNT }, (_, i) => ({
   isMajor: i % 5 === 0,
 }));
 
-export default function TickCircle() {
+interface Props {
+  isSpeaking?: boolean;
+}
+
+export default function TickCircle({ isSpeaking = false }: Props) {
   return (
     <div className="tick-circle-wrapper">
+      {isSpeaking && (
+        <>
+          <div className="speak-ring speak-ring--1" />
+          <div className="speak-ring speak-ring--2" />
+          <div className="speak-ring speak-ring--3" />
+        </>
+      )}
       <svg
         width={SIZE}
         height={SIZE}
