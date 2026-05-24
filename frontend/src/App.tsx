@@ -31,7 +31,7 @@ const THINKING_PROMPTS = [
   "At once, sir.",
   "Consider it done, sir.",
   "I'll look into that for you, sir.",
-  "Very good, sir.",
+  "Very well, sir.",
 ];
 
 function randomThinkingPrompt(): string {
