@@ -29,8 +29,10 @@ def chat(message: str) -> dict:
     reply = agent_chat(message)
     theme = pop_theme()
     result: dict = {"reply": reply}
+
     if theme:
         result["theme"] = theme
+        
     return result
 
 
@@ -39,4 +41,5 @@ def synthesize_speech(text: str) -> bytes:
     audio = np.concatenate(chunks)
     buf = io.BytesIO()
     sf.write(buf, audio, 24000, format="WAV")
+
     return buf.getvalue()
